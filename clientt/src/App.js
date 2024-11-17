@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { getExercisesByDate, updateExerciseStatus, getExercises, addExerciseToDate } from './services/api'; 
+import { getExercisesByDate, updateExerciseStatus, getExercises, addExerciseToDate } from './services/api';
 import './App.css';
+import ExerciseTable from './components/ExerciseTable';
+import ExerciseModal from './components/ExerciseModal';
 
 const App = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [dateExercises, setDateExercises] = useState([]);
-  const [exerciseStatuses, setExerciseStatuses] = useState({}); 
+  const [exerciseStatuses, setExerciseStatuses] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState('');
   const [goal, setGoal] = useState('');
   const [status, setStatus] = useState('');
-  const [allExercises, setAllExercises] = useState([]); 
+  const [allExercises, setAllExercises] = useState([]);
+
   useEffect(() => {
     const fetchExercises = async () => {
       try {
@@ -24,7 +27,6 @@ const App = () => {
     fetchExercises();
   }, []);
 
- 
   const handleDateChange = async (event) => {
     const date = event.target.value;
     setSelectedDate(date);
@@ -40,7 +42,6 @@ const App = () => {
       setDateExercises([]);
     }
   };
-
 
   const handleStatusChange = async (exerciseId, newStatus) => {
     try {
@@ -59,6 +60,7 @@ const App = () => {
       console.error('Ошибка при изменении статуса:', error);
     }
   };
+
   const handleAddExercise = async () => {
     if (!selectedExercise || !goal || !status || !selectedDate) {
       alert('Пожалуйста, выберите упражнение, цель, статус и дату.');
@@ -95,43 +97,12 @@ const App = () => {
 
       <h2>Упражнения на дату {selectedDate || 'не выбрано'}</h2>
       {dateExercises.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Название упражнения</th>
-              <th>Цель</th>
-              <th>Единица измерения</th>
-              <th>Статус</th>
-              <th>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dateExercises.map((exerciseEntry) => (
-              <tr key={exerciseEntry.id}>
-                <td>{exerciseEntry.exercise.name}</td>
-                <td>{exerciseEntry.goal}</td>
-                <td>{exerciseEntry.exercise.unit}</td>
-                <td>{exerciseEntry.status}</td>
-                <td>
-                  <input
-                    type="text"
-                    value={exerciseStatuses[exerciseEntry.id] || ''}
-                    onChange={(e) => setExerciseStatuses({ ...exerciseStatuses, [exerciseEntry.id]: e.target.value })}
-                    placeholder="Введите новый статус"
-                  />
-                  <button
-                    onClick={() => {
-                      const newStatus = exerciseStatuses[exerciseEntry.id] || exerciseEntry.status;
-                      handleStatusChange(exerciseEntry.id, newStatus);
-                    }}
-                  >
-                    Изменить
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ExerciseTable 
+          dateExercises={dateExercises} 
+          exerciseStatuses={exerciseStatuses} 
+          handleStatusChange={handleStatusChange} 
+          setExerciseStatuses={setExerciseStatuses} 
+        />
       ) : (
         <p>Нет упражнений на эту дату.</p>
       )}
@@ -139,51 +110,18 @@ const App = () => {
       <button className='addButton' onClick={() => setShowModal(true)}>Добавить упражнение</button>
 
       {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Добавить упражнение</h2>
-            <div>
-              <label>
-                Выберите упражнение:
-                <select value={selectedExercise} onChange={(e) => setSelectedExercise(e.target.value)}>
-                  <option value="">Выберите упражнение</option>
-                  {allExercises.map((exercise) => (
-                    <option key={exercise.id} value={exercise.id}>
-                      {exercise.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <div>
-              <label>
-                Цель:
-                <input
-                  type="text"
-                  value={goal}
-                  onChange={(e) => setGoal(e.target.value)}
-                  placeholder="Введите цель"
-                />
-              </label>
-            </div>
-
-            <div>
-              <label>
-                Статус:
-                <input
-                  type="text"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  placeholder="Введите статус"
-                />
-              </label>
-            </div>
-
-            <button className='modal-button' onClick={handleAddExercise}>Добавить</button>
-            <button className='modal-button' onClick={() => setShowModal(false)}>Закрыть</button>
-          </div>
-        </div>
+        <ExerciseModal 
+          showModal={showModal} 
+          setShowModal={setShowModal} 
+          selectedExercise={selectedExercise} 
+          setSelectedExercise={setSelectedExercise} 
+          goal={goal} 
+          setGoal={setGoal} 
+          status={status} 
+          setStatus={setStatus} 
+          allExercises={allExercises} 
+          handleAddExercise={handleAddExercise} 
+        />
       )}
     </div>
   );

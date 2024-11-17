@@ -10,7 +10,7 @@ module.exports = {
             const exercises = await ExerciseService.getExercisesForDate(date);
             res.status(200).json(exercises);
         } catch (err) {
-            res.status(500).json({ error: 'Error fetching exercises for this date' });
+            next(err);
         }
     },
     createCalendarEntry: async (req, res) => {
@@ -19,8 +19,7 @@ module.exports = {
             const newEntry = await ExerciseService.createCalendarEntry({ date, status, goal, exerciseId });
             res.status(201).json(newEntry);
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Error creating calendar entry' });
+            next(err);
         }
     },
     createExercise: async (req, res) => {
@@ -29,8 +28,7 @@ module.exports = {
             const newEntry = await ExerciseService.createExercise({ name, unit});
             res.status(201).json(newEntry);
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Error creating exercise' });
+            next(err);
         }
     },
     updateCalendarEntryStatus: async (req, res) => {
@@ -46,8 +44,7 @@ module.exports = {
             } 
             res.status(200).json({ message: 'Status updated successfully' });
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Error updating calendar status' });
+            next(err);
         }
     },
     getAllExercises: async (req, res) => {
@@ -55,8 +52,7 @@ module.exports = {
             const exercises = await ExerciseService.getAllExercises();
             res.status(200).json(exercises);
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Error' });
+            next(err);
         }
     },
 };
